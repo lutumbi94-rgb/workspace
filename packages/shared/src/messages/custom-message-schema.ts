@@ -220,6 +220,64 @@ export const createApprovalMessage = (data: {
 });
 
 /**
+ * Creates a standard Form Message UI structure for data collection
+ */
+export const createFormMessage = (data: {
+  title: string;
+  description?: string;
+  icon?: string;
+  fields: Array<{
+    id: string;
+    type: 'Input.Text' | 'Input.Select' | 'Input.Checkbox';
+    label: string;
+    placeholder?: string;
+    properties?: Record<string, any>;
+    validation?: ValidationSchemaType;
+    condition?: ConditionSchemaType;
+  }>;
+  submitLabel: string;
+  callbackId: string;
+  payload?: Record<string, any>;
+}): CustomMessage => ({
+  version: 'v1',
+  type: 'FORM',
+  context: {
+    title: data.title,
+    description: data.description,
+    icon: data.icon || 'FileText',
+    priority: 'normal',
+  },
+  root: {
+    type: 'Layout.Stack',
+    children: data.fields.map(f => ({
+      id: f.id,
+      type: f.type,
+      properties: {
+        label: f.label,
+        placeholder: f.placeholder,
+        ...f.properties,
+      },
+      validation: f.validation,
+      condition: f.condition,
+    })),
+  },
+  actions: [
+    {
+      id: 'submit',
+      label: data.submitLabel,
+      type: 'PRIMARY',
+      icon: 'Send',
+      handler: {
+        type: 'CALLBACK',
+        callbackId: data.callbackId,
+        payload: data.payload,
+        includeFormState: true,
+      },
+    },
+  ],
+});
+
+/**
  * Creates a standard Report Message UI structure
  */
 export const createReportMessage = (data: {

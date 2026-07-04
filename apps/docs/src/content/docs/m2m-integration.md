@@ -57,6 +57,8 @@ M2M applications can send interactive messages with buttons (actions). When a us
 
 ### Sending an Interactive Message
 
+You can send simple interactive messages with buttons using the `actions` array:
+
 ```bash
 curl -X POST https://api.yourdomain.com/api/v2/workspaces/acme-corp/messages \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
@@ -68,6 +70,38 @@ curl -X POST https://api.yourdomain.com/api/v2/workspaces/acme-corp/messages \
       { "actionId": "deploy_approve", "label": "Approve", "style": "primary" },
       { "actionId": "deploy_reject", "label": "Reject", "style": "danger" }
     ]
+  }'
+```
+
+### Custom Messages (Rich UI)
+
+For more complex interfaces including forms, grids, and dynamic data, use the **Custom Message** system.
+
+See the [Custom Messages Guide](./custom-messages.md) for full documentation on building rich UIs with JSON schemas.
+
+Example sending a Custom Message via M2M:
+
+```bash
+curl -X POST https://api.yourdomain.com/api/v2/workspaces/acme-corp/messages \
+  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "channelId": "CHANNEL_ID",
+    "messageType": "custom",
+    "metadata": {
+      "version": "v1",
+      "type": "APPROVAL",
+      "context": { "title": "Access Request", "icon": "Lock" },
+      "root": {
+        "type": "Layout.Card",
+        "children": [
+          { "type": "Text.Paragraph", "properties": { "content": "Jules is requesting admin access." } }
+        ]
+      },
+      "actions": [
+        { "id": "approve", "label": "Grant Access", "type": "PRIMARY", "handler": { "type": "CALLBACK", "callbackId": "auth-service" } }
+      ]
+    }
   }'
 ```
 

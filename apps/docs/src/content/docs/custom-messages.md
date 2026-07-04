@@ -1,29 +1,27 @@
-# Custom Messages (v1)
+# Custom Messages Guide
 
-Scrymechat's Custom Message system allows you to build rich, interactive, and dynamic user interfaces directly within the chat. Inspired by GraphQL and Block-based UI systems, it provides an "enterprise-grade" way to extend chat functionality.
+Scrymechat's Custom Message system allows developers to build rich, interactive, and dynamic user interfaces directly within the chat. By using a structured JSON schema, you can create complex workflows like approval systems, data entry forms, and real-time dashboards without writing new frontend code.
 
-## Core Concepts
+## Core Principles
 
-- **Node-based Architecture**: UI is built from nested nodes (Layouts, Inputs, Displays).
-- **Form State**: Messages automatically track input state and submit it with actions.
-- **Dynamic Content**: Support for variable interpolation `{{var}}` and dynamic data sources.
-- **Conditional Logic**: Show or hide components and actions based on user input or data.
-- **Plugin Registry**: Easily extensible component system.
-- **Client-side Validation**: Define rules to ensure data quality before submission.
+- **Schema-Driven UI**: Define your interface once in JSON; it renders consistently across Web, Mobile, and Desktop.
+- **State Management**: Input components automatically track user data, which is sent back to your server upon action.
+- **Dynamic Content**: Use `{{double_braces}}` for variable interpolation from static data or live form state.
+- **Conditional Visibility**: Show or hide any part of the UI based on logical rules.
 
 ---
 
-## Schema Overview
+## The Message Schema
 
-A custom message is defined in the message's `metadata` field.
+A custom message is defined within the `metadata` field of a standard message object.
 
 ```json
 {
   "version": "v1",
-  "type": "SURVEY",
+  "type": "WORKFLOW_OR_TYPE",
   "context": {
-    "title": "Feedback Survey",
-    "description": "Tell us what you think",
+    "title": "Header Title",
+    "description": "Optional subtitle",
     "icon": "Info",
     "priority": "normal"
   },
@@ -36,183 +34,183 @@ A custom message is defined in the message's `metadata` field.
 }
 ```
 
-### Context
-Defines the header of the custom message card.
-- `title`: (Required) The main heading.
-- `description`: Optional sub-heading.
-- `icon`: Optional Lucide icon name.
-- `priority`: `low`, `normal`, `high`, or `urgent`.
-
-### Variables & Interpolation
-You can use `{{variable.path}}` in most string properties. Variables are resolved from the `data` object and the current `formState`.
-
-Example:
-```json
-"data": { "user": { "name": "Jules" } },
-"root": {
-  "type": "Text.Heading",
-  "properties": { "content": "Hello, {{user.name}}!" }
-}
-```
+### Context Properties
+| Property | Type | Description |
+| :--- | :--- | :--- |
+| `title` | `string` | **Required.** The main heading of the message card. |
+| `description` | `string` | Optional text displayed below the title. |
+| `icon` | `string` | Lucide icon name (e.g., `Check`, `AlertCircle`, `Settings`). |
+| `priority` | `enum` | `low`, `normal`, `high`, `urgent`. Affects visual emphasis. |
 
 ---
 
-## Components
+## Component Reference
 
 ### Layout Components
+Used to structure the arrangement of other components.
 
 #### `Layout.Card`
-A contained box with padding and a border.
-- `properties.className`: Custom CSS classes.
+A container with padding, borders, and a shadow. Usually used as the root node.
 
 #### `Layout.Stack`
-A vertical flex container.
-- `properties.className`: Custom CSS classes.
+A vertical container that stacks its children with consistent spacing.
 
 #### `Layout.Grid`
 A multi-column grid.
-- `properties.columns`: Number of columns (default 1).
+- `properties.columns`: Number of columns (default: 1).
 
 ### Display Components
+Used to show information to the user.
 
 #### `Text.Heading` & `Text.Paragraph`
-Basic text elements. Supports markdown in paragraphs.
-- `properties.content`: The text to display.
+- `properties.content`: The text to display. Supports variable interpolation. Paragraphs support basic Markdown.
 
 #### `Display.Field`
 A labeled data point.
-- `properties.label`: The field label.
-- `properties.value`: The field value.
+- `properties.label`: The field label (e.g., "Amount").
+- `properties.value`: The data to display (e.g., "$50.00").
 
 #### `Data.StatsGrid` & `Data.Stat`
-Used for dashboard-like metrics.
+Used for creating dashboard-like metric displays. Use `Data.Stat` inside a `Data.StatsGrid`.
 
 ### Input Components
-
-All inputs require an `id` to track their value and can optionally include `validation`.
+Used to collect data from users. All inputs require a unique `id`.
 
 #### `Input.Text`
-Single or multi-line text input.
-- `properties.label`: Field label.
-- `properties.placeholder`: Placeholder text.
-- `properties.multiline`: Boolean for textarea.
+- `properties.label`: Label above the input.
+- `properties.placeholder`: Hint text.
+- `properties.multiline`: If `true`, renders a textarea.
 - `properties.inputType`: `text`, `number`, `email`, `password`.
 
-#### `Input.Select`
-A dropdown selection.
-- `properties.dataSource`: Defines where options come from.
-  - `type`: `STATIC`, `API`, or `VARIABLE`.
-  - `items`: Array of `{ label, value }` (for STATIC).
-  - `url`: API endpoint (for API).
-  - `key`: Key in `data` object (for VARIABLE).
-
 #### `Input.Checkbox`
-A simple toggle.
-- `properties.label`: Label text.
+- `properties.label`: Label displayed next to the checkbox.
+
+#### `Input.Select`
+Renders a dropdown menu.
+- `properties.dataSource`:
+  - `type`: `STATIC` (fixed list), `VARIABLE` (from `data` object), or `API` (remote fetch).
+  - `items`: Array of `{ label, value }` (for `STATIC`).
+  - `key`: Path in `data` (for `VARIABLE`).
+  - `url`: Endpoint to call (for `API`).
 
 ---
 
-## Logic, Validation & Actions
+## Advanced Logic
+
+### Variable Interpolation
+You can inject data into strings using `{{path.to.key}}`.
+- **Static Data**: Resolved from the `data` object in the schema.
+- **Form State**: Resolved from the current values of input components (using their `id`).
+
+Example: `Hello {{user.name}}, your status is {{status_input}}`.
+
+### Conditional Logic
+Any node (layout, display, or input) can have a `condition` object.
+
+```json
+"condition": {
+  "field": "id_of_another_input",
+  "operator": "EQUALS",
+  "value": "specific_value"
+}
+```
+
+**Available Operators**: `EQUALS`, `NOT_EQUALS`, `CONTAINS`, `GREATER_THAN`, `LESS_THAN`, `EXISTS`, `NOT_EXISTS`.
 
 ### Validation
-Inputs can define a `validation` object:
-- `required`: Boolean.
-- `pattern`: Regex string.
-- `minLength` / `maxLength`: Numbers.
-- `errorMessage`: Custom string to show on failure.
+Inputs can enforce rules before an action is submitted.
 
 ```json
 "validation": {
   "required": true,
-  "errorMessage": "Please provide your feedback"
+  "minLength": 10,
+  "errorMessage": "Please provide a detailed reason (min 10 chars)."
 }
 ```
 
-### Conditional Visibility
-Every node can have a `condition`.
+---
 
-```json
-"condition": {
-  "field": "is_interested",
-  "operator": "EQUALS",
-  "value": true
-}
-```
-**Operators**: `EQUALS`, `NOT_EQUALS`, `CONTAINS`, `GREATER_THAN`, `LESS_THAN`, `EXISTS`, `NOT_EXISTS`.
+## Handling Actions
 
-### Actions
-Actions are rendered as buttons at the bottom of the card.
+Actions are rendered as buttons. When clicked, Scrymechat validates the form state and then triggers the handler.
 
 ```json
 {
-  "id": "submit_action",
-  "label": "Submit",
+  "id": "submit_btn",
+  "label": "Send Request",
   "type": "PRIMARY",
   "handler": {
     "type": "CALLBACK",
-    "callbackId": "my-plugin-id",
+    "callbackId": "my-backend-service",
     "includeFormState": true,
-    "payload": { "extra": "data" }
+    "payload": { "internal_id": 123 }
   }
 }
 ```
 
-When clicked, the UI first validates all visible inputs. If valid, the `formState` (all input values) is merged into the payload sent to your backend.
+### Callback Payload
+If `includeFormState` is `true`, your backend receives:
+```json
+{
+  "messageId": "...",
+  "internal_id": 123,
+  "formState": {
+    "input_id_1": "user value",
+    "input_id_2": true
+  }
+}
+```
 
 ---
 
-## Example: Advanced Approval Form
+## Complete Example: Support Ticket Form
 
 ```json
 {
   "version": "v1",
-  "type": "APPROVAL",
+  "type": "SUPPORT_FORM",
   "context": {
-    "title": "Expense Claim: {{claim_id}}",
-    "icon": "FileText"
+    "title": "Create Support Ticket",
+    "icon": "HelpCircle"
   },
   "root": {
-    "type": "Layout.Stack",
+    "type": "Layout.Card",
     "children": [
       {
-        "type": "Display.Field",
-        "properties": { "label": "Amount", "value": "${{amount}}" }
+        "id": "subject",
+        "type": "Input.Text",
+        "validation": { "required": true },
+        "properties": { "label": "Subject", "placeholder": "What do you need help with?" }
       },
       {
-        "id": "reason",
+        "id": "priority",
         "type": "Input.Select",
-        "validation": { "required": true },
         "properties": {
-          "label": "Rejection Reason",
+          "label": "Urgency",
           "dataSource": {
             "type": "STATIC",
             "items": [
-              { "label": "Missing Receipt", "value": "no_receipt" },
-              { "label": "Policy Violation", "value": "policy" }
+              { "label": "Low", "value": "low" },
+              { "label": "High", "value": "high" }
             ]
           }
-        },
-        "condition": { "field": "action_type", "operator": "EQUALS", "value": "reject" }
+        }
+      },
+      {
+        "id": "reason",
+        "type": "Input.Text",
+        "condition": { "field": "priority", "operator": "EQUALS", "value": "high" },
+        "properties": { "label": "Reason for High Urgency", "multiline": true }
       }
     ]
   },
   "actions": [
     {
-      "id": "approve",
-      "label": "Approve",
+      "id": "submit",
+      "label": "Create Ticket",
       "type": "PRIMARY",
-      "handler": { "type": "CALLBACK", "callbackId": "expense-auth" }
-    },
-    {
-      "id": "reject",
-      "label": "Reject",
-      "type": "DESTRUCTIVE",
-      "handler": { "type": "CALLBACK", "callbackId": "expense-auth" }
+      "handler": { "type": "CALLBACK", "callbackId": "support-bot" }
     }
-  ],
-  "data": {
-    "claim_id": "EXP-992",
-    "amount": "450.00"
-  }
+  ]
 }
 ```
