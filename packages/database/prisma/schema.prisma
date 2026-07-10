@@ -1593,6 +1593,14 @@ model Organization {
   members     Member[]
   invitations OrganizationInvitation[]
 
+  // Organization as M2M fields
+  clientId      String?   @unique
+  clientSecret  String?
+  scopes        String[]
+  allowedIps    String[]
+  webhookUrl    String?
+  webhookSecret String?
+
   @@map("organizations")
 }
 
