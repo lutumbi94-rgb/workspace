@@ -1,44 +1,58 @@
-import { Link } from 'react-router';
+import { Link, useLocation } from 'react-router';
 import { useAuth } from '@/hooks/use-auth';
 
-const NAV_LINKS = [
-  { label: 'Product', to: '/' },
-  { label: 'Workspaces', to: '/workspaces' },
-  { label: 'Integrations', to: '/integrations' },
-  { label: 'Pricing', to: '/pricing' },
-  { label: 'Developers', to: '/developers' },
-];
-
-const Header = () => {
+export default function Header() {
   const { isAuthenticated, user } = useAuth();
+  const location = useLocation();
+
+  const navLinks = [
+    { label: 'Features', to: '/features' },
+    { label: 'Developers', to: '/developers' },
+    { label: 'Integrations', to: '/integrations' },
+    { label: 'Pricing', to: '/pricing' },
+  ];
 
   return (
-    <nav className="sticky top-0 z-50 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
-      <div className="flex justify-between items-center w-full px-10 py-0 h-14 max-w-screen-xl mx-auto">
-        <div className="flex items-center gap-10">
-          <Link to="/" className="text-[15px] font-medium tracking-tight text-slate-900 dark:text-white">
-            Skryme
-          </Link>
-          <div className="hidden md:flex gap-7">
-            {NAV_LINKS.map(({ label, to }) => (
+    <nav className="bg-surface/80 backdrop-blur-xl docked full-width top-0 sticky z-50 shadow-sm border-b border-outline-variant/20">
+      <div className="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-stack-md max-w-container-max mx-auto h-20">
+        <Link
+          to="/"
+          className="font-headline-lg-mobile md:text-[24px] font-extrabold text-primary flex items-center gap-2"
+        >
+          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+            terminal
+          </span>
+          Scryme Chat
+        </Link>
+
+        <div className="hidden md:flex items-center gap-8">
+          {navLinks.map(link => {
+            const isActive = location.pathname === link.to;
+            return (
               <Link
-                key={label}
-                to={to}
-                className="text-[13px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                key={link.label}
+                to={link.to === '/integrations' ? '#' : link.to}
+                className={`font-label-md transition-colors duration-200 ${
+                  isActive
+                    ? 'text-primary font-bold border-b-2 border-primary pb-1'
+                    : 'text-on-surface-variant hover:text-primary'
+                }`}
               >
-                {label}
+                {link.label}
               </Link>
-            ))}
-          </div>
+            );
+          })}
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-6">
           {isAuthenticated ? (
             <>
-              <span className="text-[13px] text-slate-500 dark:text-slate-400 hidden sm:block">Hi, {user?.name}</span>
+              <span className="text-[13px] text-on-surface-variant font-label-md hidden sm:block">
+                Hi, {user?.name}
+              </span>
               <Link
-                to="/dashboard"
-                className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[13px] font-medium rounded cursor-pointer hover:opacity-85 transition-opacity"
+                to="/developer"
+                className="bg-primary text-on-primary font-label-md px-6 py-3 rounded-full hover:bg-primary/95 hover:shadow-lg transition-all active:scale-95"
               >
                 Dashboard
               </Link>
@@ -47,15 +61,15 @@ const Header = () => {
             <>
               <Link
                 to="/login"
-                className="text-[13px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                className="hidden md:block text-on-surface font-label-md hover:text-primary transition-colors"
               >
-                Sign in
+                Sign In
               </Link>
               <Link
                 to="/signup"
-                className="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 text-[13px] font-medium rounded cursor-pointer hover:opacity-85 transition-opacity"
+                className="bg-primary text-on-primary font-label-md px-6 py-3 rounded-full hover:bg-primary/95 hover:shadow-lg transition-all active:scale-95"
               >
-                Get started
+                Get Started
               </Link>
             </>
           )}
@@ -63,6 +77,4 @@ const Header = () => {
       </div>
     </nav>
   );
-};
-
-export default Header;
+}

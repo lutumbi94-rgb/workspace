@@ -3,6 +3,8 @@ import Home from './pages/Home';
 import { Pricing } from './pages/Pricing';
 import { Contact } from './pages/Contact';
 import Login from './pages/Login';
+import { Features } from './pages/Features';
+import { Developers } from './pages/Developers';
 import { DeveloperDashboard } from './pages/developer/Dashboard';
 import { AppConfig } from './pages/developer/AppConfig';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -26,11 +28,13 @@ function App() {
     <Routes>
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
+        <Route path="/features" element={<Features />} />
+        <Route path="/developers" element={<Developers />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/contact" element={<Contact />} />
 
         <Route
-          path="/developers"
+          path="/developer"
           element={
             <ProtectedRoute>
               <Outlet />
