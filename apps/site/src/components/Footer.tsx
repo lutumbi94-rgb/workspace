@@ -1,62 +1,49 @@
-import { Globe, Mail, Share2 } from 'lucide-react';
+import { Link } from 'react-router';
 
-export const Footer = () => (
-  <footer className="py-12 bg-white dark:bg-slate-950">
-    <div className="max-w-screen-xl mx-auto px-10">
-      <div className="grid grid-cols-2 md:grid-cols-6 gap-10 mb-12">
-        <div className="col-span-2">
-          <p className="text-[14px] font-medium text-slate-900 dark:text-white mb-3">Skryme</p>
-          <p className="text-[13px] text-slate-500 dark:text-slate-400 leading-relaxed max-w-[220px] mb-6">
-            Team communication and collaboration for modern engineering organizations and individuals.
-          </p>
-          <div className="flex gap-4">
-            <Globe size={16} className="text-slate-400 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300" />
-            <Mail size={16} className="text-slate-400 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300" />
-            <Share2
-              size={16}
-              className="text-slate-400 cursor-pointer hover:text-slate-600 dark:hover:text-slate-300"
-            />
-          </div>
+export const Footer = () => {
+  return (
+    <footer className="bg-surface-container dark:bg-inverse-surface full-width bottom-0 bg-white border-t border-outline-variant/20">
+      <div className="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop py-12 gap-8 max-w-container-max mx-auto">
+        <Link
+          to="/"
+          className="font-headline-lg-mobile md:text-[24px] font-extrabold text-primary dark:text-inverse-primary flex items-center gap-2"
+        >
+          <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
+            terminal
+          </span>
+          Scryme Chat
+        </Link>
+        <div className="flex flex-wrap justify-center gap-8">
+          <a
+            href={import.meta.env.VITE_DOCS_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-on-surface-variant font-label-md hover:text-primary transition-colors"
+          >
+            Documentation
+          </a>
+          <a
+            href={`${import.meta.env.VITE_DOCS_URL}/api-reference`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-on-surface-variant font-label-md hover:text-primary transition-colors"
+          >
+            API Reference
+          </a>
+          <a href="#" className="text-on-surface-variant font-label-md hover:text-primary transition-colors">
+            Status
+          </a>
+          <a href="#" className="text-on-surface-variant font-label-md hover:text-primary transition-colors">
+            Privacy Policy
+          </a>
+          <a href="#" className="text-on-surface-variant font-label-md hover:text-primary transition-colors">
+            Terms of Service
+          </a>
         </div>
-        {[
-          { heading: 'Product', links: ['Messaging', 'Workspaces', 'Integrations', 'API'] },
-          { heading: 'Company', links: ['About', 'Blog', 'Careers', 'Press'] },
-          { heading: 'Developers', links: ['API docs', 'SDKs', 'Changelog', 'Status'] },
-          { heading: 'Legal', links: ['Privacy', 'Terms', 'Security', 'Cookies'] },
-        ].map(col => (
-          <div key={col.heading}>
-            <p className="text-[11px] font-medium uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-4">
-              {col.heading}
-            </p>
-            <ul className="space-y-3">
-              {col.links.map(link => (
-                <li key={link}>
-                  <a
-                    href="#"
-                    className="text-[13px] text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
-                  >
-                    {link}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-      <div className="border-t border-slate-200 dark:border-slate-800 pt-6 flex items-center justify-between flex-wrap gap-4">
-        <p className="text-[12px] text-slate-400">© 2026 Skryme, Inc. All rights reserved.</p>
-        <div className="flex gap-6">
-          {['System status', 'Security', 'Contact'].map(l => (
-            <a
-              key={l}
-              href="#"
-              className="text-[12px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-            >
-              {l}
-            </a>
-          ))}
+        <div className="text-on-surface-variant font-body-sm text-center md:text-right text-[13px]">
+          © {new Date().getFullYear()} Scryme Chat. Engineered for high-performance teams.
         </div>
       </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
